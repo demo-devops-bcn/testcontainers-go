@@ -48,24 +48,3 @@ jobs:
       - name: go test
         timeout-minutes: 30
         run: make test-unit
-
-      - name: Create slack payload file
-        if: failure()
-        run: |
-          cat <<EOF > ./payload-slack-content.json
-          {
-              "tc_project": "testcontainers-go",
-              "tc_docker_install_type": "${docker_install_type}",
-              "tc_github_action_url": "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${GITHUB_RUN_ATTEMPT}",
-              "tc_github_action_status": "FAILED",
-              "tc_slack_channel_id": "${{ secrets.SLACK_DOCKER_LATEST_CHANNEL_ID }}"
-          }
-
-      - name: Notify to Slack on failures
-        if: failure()
-        id: slack
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          payload-file-path: "./payload-slack-content.json"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DOCKER_LATEST_WEBHOOK }}
